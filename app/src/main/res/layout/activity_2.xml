@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/box_inset_layout_padding"
+    tools:context=".Activity2"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/inner_frame_layout_padding"
+        android:textAlignment="center">
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:textAlignment="center">
+            <androidx.appcompat.widget.AppCompatButton
+                android:textAlignment="center"
+                android:onClick="onClick1"
+                android:id="@+id/button1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/activity3" />
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="启动自己"
+                android:onClick="onClick2"
+                tools:ignore="MissingConstraints" />
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="启动Main"
+                android:onClick="onClick3"
+                tools:ignore="MissingConstraints" />
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="替换fragment"
+                android:onClick="onClick4"
+                tools:ignore="MissingConstraints" />
+
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+
+
+    </FrameLayout>
+    <LinearLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+    <fragment
+        android:id="@+id/left_fragment"
+        android:name="com.example.bottomnavigationactivityapp.ActivityTwoFragment.LeftFragment"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        />
+    <fragment
+        android:id="@+id/right_fragment"
+        android:name="com.example.bottomnavigationactivityapp.ActivityTwoFragment.RightFragment"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"/>
+    </LinearLayout>
+
+</LinearLayout>
