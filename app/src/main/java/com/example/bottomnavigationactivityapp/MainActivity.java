@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.bottomnavigationactivityapp.contact.ContactMainActivity;
+import com.example.bottomnavigationactivityapp.contact.ContactMainActivity2;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
@@ -52,7 +53,6 @@ public class MainActivity extends BaseActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
         shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION);
-        Toast.makeText(this, "ffdfdfd", Toast.LENGTH_LONG).show();
 
     }
 
@@ -74,7 +74,7 @@ public class MainActivity extends BaseActivity {
 
     }
     public void onClick3(View view){
-        Intent intent = new Intent(this, ContactMainActivity.class);
+        Intent intent = new Intent(this, ContactMainActivity2.class);
         startActivity(intent);
     }
 

@@ -5,10 +5,12 @@
     android:orientation="vertical">
     <TextView
         android:id="@+id/label"
+        android:background="#C6CDCD"
+        android:textColor="@color/purple_700"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
-    <ListView
+    <com.example.bottomnavigationactivityapp.contact.SubListView
         android:id="@+id/contact_list_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="match_parent"/>
 </LinearLayout>

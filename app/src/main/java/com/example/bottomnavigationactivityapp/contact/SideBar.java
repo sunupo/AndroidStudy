@@ -138,7 +138,7 @@ public class SideBar extends View {
      * 接口
      *
      * @author coder
-     *
+     *   todo       SideBar是怎样获取到当前点击的字符的。
      */
     public interface OnTouchingLetterChangedListener {
         public void onTouchingLetterChanged(String s);

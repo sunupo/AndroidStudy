@@ -2,13 +2,24 @@ package com.example.bottomnavigationactivityapp.contact;
 
 import android.graphics.drawable.Drawable;
 
-public class ContactViewModel {
+import androidx.annotation.NonNull;
+
+import java.io.Serializable;
+
+public class ContactViewModel implements Cloneable, Serializable {
     public int imageId;
     public String name;
     public String phone;
     public String sortKey;
     public String label;
 
+    public ContactViewModel(String name, String phone) {
+        this.name = name;
+        this.phone = phone;
+    }
+
+    public ContactViewModel() {
+    }
 
     @Override
     public String toString() {
@@ -19,6 +30,17 @@ public class ContactViewModel {
                 ", sortKey='" + sortKey + '\'' +
                 ", label='" + label + '\'' +
                 '}';
+    }
+
+    @NonNull
+    @Override
+    public ContactViewModel clone() {
+        try {
+            return (ContactViewModel) super.clone();
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public int getImageId() {

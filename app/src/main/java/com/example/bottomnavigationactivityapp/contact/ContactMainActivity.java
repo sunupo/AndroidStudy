@@ -9,11 +9,16 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.text.Editable;
+import android.text.NoCopySpan;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -25,13 +30,19 @@ import androidx.core.content.ContextCompat;
 import com.example.bottomnavigationactivityapp.BaseActivity;
 import com.example.bottomnavigationactivityapp.R;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ContactMainActivity extends BaseActivity {
 
     private List<ContactViewModel> contactViewModelList = new ArrayList<>();
+    private List<ContactViewModel> contactViewModelListStore = new ArrayList<>();
     ContactAdapter adapter;
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -46,12 +57,21 @@ public class ContactMainActivity extends BaseActivity {
         Log.i(TAG, "ContactMainActivity: ");
     }
 
+    public void customClone(List<ContactViewModel> a, List<ContactViewModel> b) {
+        a.clear();
+        for (ContactViewModel model: b) {
+            a.add(model.clone());
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact_main);
         initSystemContacts();
         adapter = new ContactAdapter(this, R.layout.contact_item, contactViewModelList);
+        EditText editText = findViewById(R.id.search_content);
+        Button button = findViewById(R.id.confirm);
         ListView listView = findViewById(R.id.contact_label_view);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener((parent, view, position, id) -> {
@@ -76,7 +96,53 @@ public class ContactMainActivity extends BaseActivity {
             }
 
         });
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String str = s.toString().trim();
+//                只能更新contactViewModelList，不能创建新的contactViewModelList。因为新的contactViewModelList引用没有传递到adapter。
+//                adapter有没有替换数据源的引用的方法。
+
+                restoreList(contactViewModelList,contactViewModelListStore);
+                filterList(str, contactViewModelList);
+                adapter.notifyDataSetChanged();
+                Toast.makeText(getApplicationContext(),contactViewModelListStore.size()+"\t"+contactViewModelList.size(), Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
+
+
+
+    public void filterList(String word, @NotNull List<ContactViewModel> src){
+        Iterator<ContactViewModel> iterator = src.iterator();
+        while(iterator.hasNext()){
+            ContactViewModel model = iterator.next();
+            if(!model.getPhone().contains(word) && !model.getName().contains(word)){
+                iterator.remove();
+            }
+        }
+//        if(word==null || word.trim().equals("")){
+//            return new ArrayList<>(src);
+//        }else {
+//            return src.stream().filter((model) -> model.getPhone().contains(word) || model.getName().contains(word)).collect(Collectors.toList());
+//        }
+    }
+
+    public void restoreList(List<ContactViewModel> dest, List<ContactViewModel> src){
+        dest.clear();
+        dest.addAll(src);
+    }
+
     public void call(int position){
         try {
             ContactViewModel model = contactViewModelList.get(position);
@@ -120,69 +186,80 @@ public class ContactMainActivity extends BaseActivity {
     }
 
     public void initSystemContacts(){
-        new Thread(() -> {
-            try{
-                Log.i(TAG, "initSystemContacts: initSystemContacts1");
-                String queryType[] = {Phone.DISPLAY_NAME,Phone.NUMBER, "sort_key", "phonebook_label",
-                        Phone.PHOTO_ID};
-                Log.i(TAG, "initSystemContacts: initSystemContacts4");
+        String requestPermission=Manifest.permission.READ_CONTACTS;
+        if (ContextCompat.checkSelfPermission(
+                this, requestPermission) ==
+                PackageManager.PERMISSION_GRANTED) {
+            new Thread(() -> {
+                try{
+                    Log.i(TAG, "initSystemContacts: initSystemContacts1");
+                    String queryType[] = {Phone.DISPLAY_NAME,Phone.NUMBER, "sort_key", "phonebook_label",
+                            Phone.PHOTO_ID};
+                    Log.i(TAG, "initSystemContacts: initSystemContacts4");
 
-                ContentResolver resolver = getContentResolver(); //getApplicationContext().getContentResolver();
-                Cursor cursor = resolver.query(Phone.CONTENT_URI, queryType, null, null, "sort_key COLLATE LOCALIZED ASC");
-                Log.i(TAG, "initSystemContacts: initSystemContacts5");
+                    ContentResolver resolver = getContentResolver(); //getApplicationContext().getContentResolver();
+                    Cursor cursor = resolver.query(Phone.CONTENT_URI, queryType, null, null, "sort_key COLLATE LOCALIZED ASC");
+                    Log.i(TAG, "initSystemContacts: initSystemContacts5");
 
-                if(cursor==null || cursor.getCount()==0){
-                    Log.i(TAG, "initSystemContacts: initSystemContacts3");
+                    if(cursor==null || cursor.getCount()==0){
+                        Log.i(TAG, "initSystemContacts: initSystemContacts3");
 
-                    Toast.makeText(this,"获取系统通讯录失败", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                Log.i(TAG, "initSystemContacts: initSystemContacts2");
-
-                int nameIndex = cursor.getColumnIndex(queryType[0]);
-                int phoneIndex = cursor.getColumnIndex(queryType[1]);
-                int imageIndex = cursor.getColumnIndex(queryType[4]);
-                int sortKeyIndex = cursor.getColumnIndex(queryType[2]);
-                int labelIndex = cursor.getColumnIndex(queryType[3]);
-                Log.i(TAG, "initSystemContacts: "+nameIndex+"\t"+phoneIndex+"\t"+imageIndex+"\t"+sortKeyIndex+"\t"+labelIndex+"\t"+cursor);
-                final List<ContactViewModel> tmpList = new ArrayList<>();;
-                if(cursor!=null){
-                    Log.i(TAG, "initSystemContacts: cursor");
-                    while(cursor.moveToNext()){
-                        Log.i(TAG, "initSystemContacts: while");
-                        String name = cursor.getString(nameIndex);
-                        String phone = cursor.getString(phoneIndex);
-                        int image = cursor.getInt(imageIndex);
-                        String sortKey = cursor.getString(sortKeyIndex);
-                        String label = cursor.getString(labelIndex);
-
-                        ContactViewModel model = new ContactViewModel();
-                        model.setImageId(image);
-                        model.setName(name);
-                        model.setPhone(phone);
-                        model.setSortKey(sortKey);
-                        if (label == null || label.equals("#") || label.equals("")) {
-                            label = "#";
-                        }
-                        model.setLabel(label);
-                        tmpList.add(model);
-                        Log.e(TAG, "initSystemContacts: "+model );
+                        Toast.makeText(this,"获取系统通讯录失败", Toast.LENGTH_LONG).show();
+                        return;
                     }
+                    Log.i(TAG, "initSystemContacts: initSystemContacts2");
+
+                    int nameIndex = cursor.getColumnIndex(queryType[0]);
+                    int phoneIndex = cursor.getColumnIndex(queryType[1]);
+                    int imageIndex = cursor.getColumnIndex(queryType[4]);
+                    int sortKeyIndex = cursor.getColumnIndex(queryType[2]);
+                    int labelIndex = cursor.getColumnIndex(queryType[3]);
+                    Log.i(TAG, "initSystemContacts: "+nameIndex+"\t"+phoneIndex+"\t"+imageIndex+"\t"+sortKeyIndex+"\t"+labelIndex+"\t"+cursor);
+//                final List<ContactViewModel> tmpList = new ArrayList<>();;
+                    if(cursor!=null){
+                        Log.i(TAG, "initSystemContacts: cursor");
+                        while(cursor.moveToNext()){
+                            Log.i(TAG, "initSystemContacts: while");
+                            String name = cursor.getString(nameIndex);
+                            String phone = cursor.getString(phoneIndex);
+                            int image = cursor.getInt(imageIndex);
+                            String sortKey = cursor.getString(sortKeyIndex);
+                            String label = cursor.getString(labelIndex);
+
+                            ContactViewModel model = new ContactViewModel();
+                            model.setImageId(image);
+                            model.setName(name);
+                            model.setPhone(phone);
+                            model.setSortKey(sortKey);
+                            if (label == null || label.equals("#") || label.equals("")) {
+                                label = "#";
+                            }
+                            model.setLabel(label);
+                            contactViewModelListStore.add(model);
+                            Log.e(TAG, "initSystemContacts: "+model );
+                        }
+                    }
+                    cursor.close();
+                    runOnUiThread(()->{
+                        adapter.clear();
+                        adapter.addAll(contactViewModelListStore);
+                        adapter.notifyDataSetChanged();
+                    });
+
+                }catch (Exception err){
+                    err.printStackTrace();
+                    Log.i(TAG, "initSystemContacts: err");
                 }
-                cursor.close();
-                runOnUiThread(()->{
-                    contactViewModelList.addAll(tmpList);
-                    adapter.notifyDataSetChanged();
-                });
 
+            }).start();
 
-            }catch (Exception err){
-                err.printStackTrace();
-                Log.i(TAG, "initSystemContacts: err");
-            }
+        } else if (shouldShowRequestPermissionRationale(requestPermission)) {
+            Toast.makeText(this, "shouldShowRequestPermissionRationale", Toast.LENGTH_LONG).show();
+        } else {
+            requestPermissionLauncher.launch(
+                    requestPermission);
+        }
 
-
-        }).start();
 
 
 

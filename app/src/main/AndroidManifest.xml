@@ -20,6 +20,9 @@
         <activity
             android:name=".contact.ContactMainActivity"
             android:label="Contact"></activity>
+        <activity
+            android:name=".contact.ContactMainActivity2"
+            android:label="Contact2"></activity>
         <activity android:name=".BaseActivity" /> <!-- <uses-library -->
         <!-- android:name="com.google.android.wearable" -->
         <!-- android:required="true" /> -->
