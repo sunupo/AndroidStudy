@@ -1,6 +1,7 @@
 package com.example.bottomnavigationactivityapp.contact;
 
 import android.content.Context;
+import android.graphics.drawable.AnimationDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +46,21 @@ public class ContactAdapter extends ArrayAdapter<ContactViewModel> {
             viewHolder = (ViewHolder) view.getTag();
         }
         viewHolder.imageView.setImageResource(R.drawable.contact_phone);
+        viewHolder.imageView.setBackgroundResource(R.drawable.animation1);
+        AnimationDrawable drawable = (AnimationDrawable)viewHolder.imageView.getBackground();
+        viewHolder.imageView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                drawable.start();
+                return true;
+            }
+        });
+        viewHolder.imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawable.stop();
+            }
+        });
 
         viewHolder.name.setText(model.getName());
         viewHolder.phone.setText(model.getPhone());

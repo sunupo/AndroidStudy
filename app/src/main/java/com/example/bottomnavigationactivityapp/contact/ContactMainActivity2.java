@@ -2,6 +2,7 @@ package com.example.bottomnavigationactivityapp.contact;
 
 import android.Manifest;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -37,6 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 public class ContactMainActivity2 extends BaseActivity {
 
@@ -291,17 +293,48 @@ public class ContactMainActivity2 extends BaseActivity {
 
 
     public void scroll(String position){
-//        final可以用原子Atomic类替换
-        AtomicInteger idx= new AtomicInteger(0);
-        labelViewModelList.forEach((i)->{
-
-            if(i.label.equals(position)){
-                listView.smoothScrollToPosition(idx.get());
+////        final可以用原子Atomic类替换
+//        AtomicInteger idx= new AtomicInteger(0);
+//        labelViewModelList.forEach((i)->{
+//            if(i.label.equals(position)){
+//                listView.smoothScrollToPosition(idx.get());
+////                listView.post(()->listView.smoothScrollToPosition(idx.get()));   //todo 用个线程不行。
+//            }else{
+//                idx.getAndIncrement();
+////                idx.addAndGet(1);
+//            }
+//        });
+        int idx= 0;
+//        boolean flag=false;
+        for (LabelViewModel model:labelViewModelList) {
+            if(model.label.equals(position)){
+                listView.smoothScrollToPosition(idx);
+//                listView.post(()->listView.smoothScrollToPosition(idx)); //todo idx只能为final才能访问
+//                flag=true;
+                break;
             }else{
-                idx.addAndGet(1);
+                idx++;
             }
-        });
+
+        }
+//        final int index = idx;
+//        if(flag) {
+//            listView.post(()->listView.smoothScrollToPosition(index)); //todo 用个线程可以。
+//
+//        }
+
+        new Consumer<Integer>(){
+
+            @Override
+            public void accept(Integer integer) {
+
+            }
+        };
+
+
     }
+
+
 
 //    String chReg = "[\\u4E00-\\u9FA5]+";// 中文字符串匹配
 //
