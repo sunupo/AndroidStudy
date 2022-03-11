@@ -44,6 +44,31 @@
             android:text="打开通讯录"
             android:onClick="onClick3"
             tools:ignore="MissingConstraints" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="发送广播"
+            android:onClick="onClick4"
+            tools:ignore="MissingConstraints" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="发送message"
+                android:onClick="onClick5"
+                tools:ignore="MissingConstraints" />
+            <androidx.appcompat.widget.AppCompatEditText
+                android:text="100"
+                android:id="@+id/msg_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
 
 
 

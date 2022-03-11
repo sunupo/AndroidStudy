@@ -75,6 +75,9 @@ public class ContactMainActivity2 extends BaseActivity {
         Button button = findViewById(R.id.confirm);
         SideBar sideBar = findViewById(R.id.side_bar);
 
+        getIntent().getComponent().getPackageName();
+
+
         sideBar.setOnTouchingLetterChangedListener(new SideBar.OnTouchingLetterChangedListener() {
             @Override
             public void onTouchingLetterChanged(String s) {
@@ -255,6 +258,7 @@ public class ContactMainActivity2 extends BaseActivity {
                             map.get(label).add(model);
                         }else{
                             map.put(label, new ArrayList<>());
+                            map.get(label).add(model);
                         }
                     }
                 }
@@ -268,6 +272,7 @@ public class ContactMainActivity2 extends BaseActivity {
                 labelViewModelListStore.forEach((i)->{
                     Log.i(TAG, "loadContact: "+i.label);
                 });
+//                todo 排序方式2
 //                labeltViewModelListStore.sort((o1, o2) -> {
 //                    Log.i(TAG, "compare: "+SideBar.b.toString());
 //                    String join = String.join("", SideBar.b);
